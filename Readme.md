@@ -9,10 +9,16 @@ WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET a
 [Visit WooCommerce](http://www.woothemes.com/woocommerce/)
 [Visit WooCommerce REST API DOCS](https://woocommerce.github.io/woocommerce-rest-api-docs/)
 
+
 [![NuGet](https://buildstats.info/nuget/WooCommerceNET)](http://www.nuget.org/packages/WooCommerceNET)
 
 * [How to use JSON.NET in WooCommerce.NET](https://github.com/XiaoFaye/WooCommerce.NET/wiki/How-to-use-JSON.NET-in-WooCommerce.NET)
 * [Handle different types of Meta Value in WC Restful API V2](https://github.com/XiaoFaye/WooCommerce.NET/wiki/Handle-different-types-of-Meta-Value-in-WC-Restful-API-V2)
+
+Added API to PPOM Plugin
+[PPOM Plugin](https://najeebmedia.com/wordpress-plugin/woocommerce-personalized-product-option/)
+
+[Api documentation](https://wpcommandos.com/wp-content/uploads/2018/07/PPOM-API-Guide.pdfP)
 
 Usage
 -------------------
@@ -80,8 +86,43 @@ cb.delete = delete;
 var c = await wc.Customer.UpdateRange(cb);
 
 ```
+PPOM Plugin usage
+-------------------
+// register inside current api 
+PPOMRestAPI ppomAPI = new PPOMRestAPI("http://www.yourstore.co.nz/wp-json/wc/v2/", ppomApiSecretKey, null, jsonDeserializeFilter: WooCommerceDeserializeFilter);
+rest.RegisterApi(ppomAPI);
 
+// usage
+var ppomApi = WcAPI.GetApi<PPOMRestAPI>();
+            
+//save new 
+ppomFieldsResponse = await productApi.SetProductsPPOM(new ProductUpdate()
+{
+                ProductId = <product_id>,
+                PPOMFields = ppomFields
+            });
+            
+ //load from product
+var productApi = new ProductApi(ppomApi);
+var ppomFieldsResponse = await productApi.GetProductsPPOM(new ProductRequest()
+{
+            ProductId = <product_id>
+});
 
+//delete fields
+ var ppomFieldsResponse = await productApi.DeleteProductsPPOM(new ProductDelete()
+{
+            ProductId = <product_id>,
+            PPOMFields = fieldsToDelete
+});
+
+// load fileds from order
+//load from product
+var orderApi = new OrderApi(ppomApi);
+var ppomResponse = await orderApi.GetOrderPPOM(new OrderRequest()
+{
+            OrderId = <order_id>
+});
 
 Usage (Legacy & V1 API)
 -------------------
