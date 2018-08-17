@@ -14,11 +14,12 @@
 
 GitHub: https://github.com/segios/
 Changes Doc: https://github.com/segios/WooCommerce.NET/blob/master/Changes.md
+* v0.7.5 update
 
-* v0.7.4 update
-  1. Targeting .NET Standard 2.0.
-  2. Add Batch Update for WCSubItem.
-  3. Allow WCObject to use custom object in V2.</PackageReleaseNotes>
+1. Added PPOM API
+2. Fixes of batch update response deserialization
+3. Fixes of order serialization
+4. Added better exception handling with custom exceptuion and deserialization error info from WebException</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>WooCommerce.xNET</Product>
   </PropertyGroup>
