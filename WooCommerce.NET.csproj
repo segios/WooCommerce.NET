@@ -4,10 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>WooCommerce.xNET</PackageId>
     <Version>0.7.5</Version>
-    <Authors>SergiiStarykov@UA</Authors>
-    <Company>Sergii@UA</Company>
+    <Authors>SergiiStarykov</Authors>
+    <Company></Company>
     <Description>A .NET Wrapper for WooCommerce REST API, With PPOM API</Description>
-    <Copyright>Copyright © 2018 Sergii Starykov@UA</Copyright>
+    <Copyright>Copyright © 2018 Sergii Starykov</Copyright>
     <PackageLicenseUrl>https://github.com/segios//WooCommerce.NET/blob/master/License.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/segios/WooCommerce.NET</PackageProjectUrl>
     <PackageReleaseNotes>WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET applications.
