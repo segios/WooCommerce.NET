@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27428.2037
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WooCommerce.NET", "WooCommerce.NET.csproj", "{52678A34-81FA-48C2-A63A-57DEC077C56A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WooCommerceX.NET", "WooCommerceX.NET.csproj", "{52678A34-81FA-48C2-A63A-57DEC077C56A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

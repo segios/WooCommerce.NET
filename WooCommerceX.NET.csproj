@@ -23,6 +23,7 @@ Changes Doc: https://github.com/segios/WooCommerce.NET/blob/master/Changes.md
 4. Added better exception handling with custom exceptuion and deserialization error info from WebException</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>WooCommerceX.NET</Product>
+    <RootNamespace>WooCommerce.NET</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
