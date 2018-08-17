@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>WooCommerce.xNET</PackageId>
+    <PackageId>WooCommerceX.NET</PackageId>
     <Version>0.7.5</Version>
     <Authors>SergiiStarykov</Authors>
     <Company></Company>
@@ -21,7 +21,7 @@ Changes Doc: https://github.com/segios/WooCommerce.NET/blob/master/Changes.md
 3. Fixes of order serialization
 4. Added better exception handling with custom exceptuion and deserialization error info from WebException</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Product>WooCommerce.xNET</Product>
+    <Product>WooCommerceX.NET</Product>
   </PropertyGroup>
 
   <ItemGroup>
