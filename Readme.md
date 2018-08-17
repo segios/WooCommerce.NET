@@ -15,9 +15,9 @@ WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET a
 * [Handle different types of Meta Value in WC Restful API V2](https://github.com/XiaoFaye/WooCommerce.NET/wiki/Handle-different-types-of-Meta-Value-in-WC-Restful-API-V2)
 
 Added API to PPOM Plugin
-[PPOM Plugin] (https://najeebmedia.com/wordpress-plugin/woocommerce-personalized-product-option/)
+[PPOM Plugin](https://najeebmedia.com/wordpress-plugin/woocommerce-personalized-product-option/)
 
-[Api documentation] (https://wpcommandos.com/wp-content/uploads/2018/07/PPOM-API-Guide.pdfP)
+[Api documentation](https://wpcommandos.com/wp-content/uploads/2018/07/PPOM-API-Guide.pdfP)
 
 Usage
 -------------------
