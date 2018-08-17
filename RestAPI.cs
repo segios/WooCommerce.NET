@@ -8,6 +8,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
+using WooCommerce.NET.Exceptions;
+using WooCommerce.NET.Util;
 using WooCommerceNET.Base;
 
 namespace WooCommerceNET
@@ -19,12 +21,28 @@ namespace WooCommerceNET
         private string wc_secret = "";
         //private bool wc_Proxy = false;
 
-        private bool AuthorizedHeader { get; set; }
+        protected bool AuthorizedHeader { get; set; }
 
-        private Func<string, string> jsonSeFilter;
-        private Func<string, string> jsonDeseFilter;
-        private Action<HttpWebRequest> webRequestFilter;
-        private Action<HttpWebResponse> webResponseFilter;
+        protected Func<string, string> jsonSeFilter;
+        protected Func<string, string> jsonDeseFilter;
+        protected Action<HttpWebRequest> webRequestFilter;
+        protected Action<HttpWebResponse> webResponseFilter;
+
+        protected Dictionary<Type, object> ApiRegister = new Dictionary<Type, object>();
+
+        public void RegisterApi(object api)
+        {
+            ApiRegister[api.GetType()] = api;
+        }
+
+        public T GetApi<T>()
+        {
+            var t = typeof(T);
+            if (ApiRegister.ContainsKey(t)) {
+                return (T)ApiRegister[t];
+            }
+            return default(T);
+        }
 
         /// <summary>
         /// Initialize the RestAPI object
@@ -47,19 +65,7 @@ namespace WooCommerceNET
                 throw new Exception("Please use a valid WooCommerce Restful API url.");
 
             string urlLower = url.Trim().ToLower().TrimEnd('/');
-            if (urlLower.EndsWith("wc-api/v1") || urlLower.EndsWith("wc-api/v2") || urlLower.EndsWith("wc-api/v3"))
-                Version = APIVersion.Legacy;
-            else if (urlLower.EndsWith("wp-json/wc/v1"))
-                Version = APIVersion.Version1;
-            else if (urlLower.EndsWith("wp-json/wc/v2"))
-                Version = APIVersion.Version2;
-            else if (urlLower.Contains("wp-json/wc-"))
-                Version = APIVersion.ThirdPartyPlugins;
-            else
-            {
-                Version = APIVersion.Unknown;
-                throw new Exception("Unknow WooCommerce Restful API version.");
-            }
+            SetApiVersion(urlLower);
             
             wc_url = url + (url.EndsWith("/") ? "" : "/");
             wc_key = key;
@@ -79,7 +85,22 @@ namespace WooCommerceNET
             //wc_Proxy = useProxy;
         }
 
-        
+        protected virtual void SetApiVersion(string urlLower)
+        {
+            if (urlLower.EndsWith("wc-api/v1") || urlLower.EndsWith("wc-api/v2") || urlLower.EndsWith("wc-api/v3"))
+                Version = APIVersion.Legacy;
+            else if (urlLower.EndsWith("wp-json/wc/v1"))
+                Version = APIVersion.Version1;
+            else if (urlLower.EndsWith("wp-json/wc/v2"))
+                Version = APIVersion.Version2;
+            else if (urlLower.Contains("wp-json/wc-"))
+                Version = APIVersion.ThirdPartyPlugins;
+            else
+            {
+                Version = APIVersion.Unknown;
+                throw new Exception("Unknow WooCommerce Restful API version.");
+            }
+        }
 
         public bool IsLegacy
         {
@@ -89,7 +110,7 @@ namespace WooCommerceNET
             }
         }
 
-        public APIVersion Version { get; private set; }
+        public APIVersion Version { get; protected set; }
 
         public string Url { get { return wc_url; } }
 
@@ -102,7 +123,7 @@ namespace WooCommerceNET
         /// <param name="requestBody">If your call doesn't have a body, please pass string.Empty, not null.</param>
         /// <param name="parms"></param>
         /// <returns>json string</returns>
-        public async Task<string> SendHttpClientRequest<T>(string endpoint, RequestMethod method, T requestBody, Dictionary<string, string> parms = null)
+        public virtual async Task<string> SendHttpClientRequest<T>(string endpoint, RequestMethod method, T requestBody, Dictionary<string, string> parms = null)
         {
             HttpWebRequest httpWebRequest = null;
             try
@@ -151,16 +172,6 @@ namespace WooCommerceNET
                     Stream dataStream = await httpWebRequest.GetRequestStreamAsync().ConfigureAwait(false);
                     dataStream.Write(buffer, 0, buffer.Length);
                 }
-                else
-                {
-                    if(requestBody.ToString() != string.Empty)
-                    {
-                        httpWebRequest.ContentType = "application/json";
-                        var buffer = Encoding.UTF8.GetBytes(requestBody.ToString());
-                        Stream dataStream = await httpWebRequest.GetRequestStreamAsync().ConfigureAwait(false);
-                        dataStream.Write(buffer, 0, buffer.Length);
-                    }
-                }
                 
                 // asynchronously get a response
                 WebResponse wr = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
@@ -173,12 +184,118 @@ namespace WooCommerceNET
             catch (WebException we)
             {
                 if (httpWebRequest != null && httpWebRequest.HaveResponse)
+                {
                     if (we.Response != null)
-                        throw new WebException(await GetStreamContent(we.Response.GetResponseStream(), we.Response.ContentType.Contains("=") ? we.Response.ContentType.Split('=')[1] : "UTF-8").ConfigureAwait(false), we.InnerException, we.Status, we.Response);
+                        throw new WooCommerceException(await GetStreamContent(we.Response.GetResponseStream(), we.Response.ContentType.Contains("=") ? we.Response.ContentType.Split('=')[1] : "UTF-8").ConfigureAwait(false), we.InnerException);
                     else
-                        throw we;
+                        throw;
+                }
                 else
-                    throw we;
+                {
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
+            }
+        }
+
+        public async Task<string> SendFile(string endpoint, RequestMethod method, byte[] fileData, string fileName, Dictionary<string, string> parms = null)
+        {
+            HttpWebRequest httpWebRequest = null;
+            try
+            {
+                if (wc_url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (AuthorizedHeader == true)
+                    {
+                        httpWebRequest = (HttpWebRequest)WebRequest.Create(wc_url + GetOAuthEndPoint(method.ToString(), endpoint, parms));
+                        httpWebRequest.Headers["Authorization"] = "Basic " + Convert.ToBase64String(Encoding.GetEncoding("ISO-8859-1").GetBytes(wc_key + ":" + wc_secret));
+                    }
+                    else
+                    {
+                        if (parms == null)
+                            parms = new Dictionary<string, string>();
+
+                        if (!parms.ContainsKey("consumer_key"))
+                            parms.Add("consumer_key", wc_key);
+                        if (!parms.ContainsKey("consumer_secret"))
+                            parms.Add("consumer_secret", wc_secret);
+
+                        httpWebRequest = (HttpWebRequest)WebRequest.Create(wc_url + GetOAuthEndPoint(method.ToString(), endpoint, parms));
+                    }
+                }
+                else
+                {
+                    httpWebRequest = (HttpWebRequest)WebRequest.Create(wc_url + GetOAuthEndPoint(method.ToString(), endpoint, parms));
+                }
+
+                // start the stream immediately
+                httpWebRequest.Method = method.ToString();
+                httpWebRequest.AllowReadStreamBuffering = false;
+
+                if (webRequestFilter != null)
+                    webRequestFilter.Invoke(httpWebRequest);
+
+                //if (wc_Proxy)
+                //    httpWebRequest.Proxy.Credentials = CredentialCache.DefaultCredentials;
+                //else
+                //    httpWebRequest.Proxy = null;
+                string boundary = "----------" + DateTime.Now.Ticks.ToString("x");
+
+                string extension = fileName.Split('.').Last();
+                var contentType = MimeTypeHelper.GetMIMETypeFromExtension(extension);
+
+                httpWebRequest.ContentType = "multipart/form-data; boundary=" + boundary;
+                // Build up the post message header
+                StringBuilder sb = new StringBuilder();
+                sb.Append("--");
+                sb.Append(boundary);
+                sb.Append("\r\n");
+                sb.Append("Content-Disposition: form-data; name=\"");
+                sb.Append(fileName);
+                sb.Append("\"; filename=\"");
+                sb.Append(fileName);
+                sb.Append("\"");
+                sb.Append("\r\n");
+                sb.Append("Content-Type: ");
+                sb.Append(contentType);
+                sb.Append("\r\n");
+                sb.Append("\r\n");
+                string postHeader = sb.ToString();
+                byte[] postHeaderBytes = Encoding.UTF8.GetBytes(postHeader);
+                byte[] boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "\r\n");
+                long length = postHeaderBytes.Length + fileData.Length + boundaryBytes.Length + 2;
+                httpWebRequest.ContentLength = length;
+                Stream requestStream = httpWebRequest.GetRequestStream();
+                requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+                requestStream.Write(fileData, 0, fileData.Length);
+                boundaryBytes = Encoding.ASCII.GetBytes("\r\n--" + boundary + "--\r\n");
+                requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+
+
+                // asynchronously get a response
+                WebResponse wr = await httpWebRequest.GetResponseAsync().ConfigureAwait(false);
+
+                if (webResponseFilter != null)
+                    webResponseFilter.Invoke((HttpWebResponse)wr);
+
+                return await GetStreamContent(wr.GetResponseStream(), wr.ContentType.Contains("=") ? wr.ContentType.Split('=')[1] : "UTF-8").ConfigureAwait(false);
+            }
+            catch (WebException we)
+            {
+                if (httpWebRequest != null && httpWebRequest.HaveResponse)
+                {
+                    if (we.Response != null)
+                        throw new WooCommerceException(await GetStreamContent(we.Response.GetResponseStream(), we.Response.ContentType.Contains("=") ? we.Response.ContentType.Split('=')[1] : "UTF-8").ConfigureAwait(false), we.InnerException);
+                    else
+                        throw;
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (Exception e)
             {
@@ -196,6 +313,11 @@ namespace WooCommerceNET
             return await SendHttpClientRequest(endpoint, RequestMethod.POST, jsonObject, parms).ConfigureAwait(false);
         }
 
+        public async Task<string> SendFile(string endpoint, byte[] data, string file, Dictionary<string, string> parms = null)
+        {
+            return await SendFile(endpoint, RequestMethod.POST, data, file, parms).ConfigureAwait(false);
+        }
+
         public async Task<string> PutRestful(string endpoint, object jsonObject, Dictionary<string, string> parms = null)
         {
             return await SendHttpClientRequest(endpoint, RequestMethod.PUT, jsonObject, parms).ConfigureAwait(false);
@@ -206,7 +328,7 @@ namespace WooCommerceNET
             return await SendHttpClientRequest(endpoint, RequestMethod.DELETE, string.Empty, parms).ConfigureAwait(false);
         }
 
-        private string GetOAuthEndPoint(string method, string endpoint, Dictionary<string, string> parms = null)
+        protected string GetOAuthEndPoint(string method, string endpoint, Dictionary<string, string> parms = null)
         {
             if (wc_url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
@@ -249,7 +371,7 @@ namespace WooCommerceNET
             return endpoint + "?" + parmstr.TrimEnd('&');
         }
         
-        private async Task<string> GetStreamContent(Stream s, string charset)
+        protected async Task<string> GetStreamContent(Stream s, string charset)
         {
             StringBuilder sb = new StringBuilder();
             byte[] Buffer = new byte[512];
@@ -266,25 +388,15 @@ namespace WooCommerceNET
 
         public virtual string SerializeJSon<T>(T t)
         {
-            DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings()
-            {
-                DateTimeFormat = new DateTimeFormat(DateTimeFormat),
-                UseSimpleDictionaryFormat = true
-            };
-
-            MemoryStream stream = new MemoryStream();
-            DataContractJsonSerializer ds = new DataContractJsonSerializer(t.GetType(), settings);
-            ds.WriteObject(stream, t);
-            byte[] data = stream.ToArray();
-            string jsonString = Encoding.UTF8.GetString(data, 0, data.Length);
+            string jsonString = JsonHelper.SerializeJSon<T>(t, DateTimeFormat);
 
             if (IsLegacy)
+            {
                 if (typeof(T).IsArray)
                     jsonString = "{\"" + typeof(T).Name.ToLower().Replace("[]", "s") + "\":" + jsonString + "}";
                 else
                     jsonString = "{\"" + typeof(T).Name.ToLower() + "\":" + jsonString + "}";
-
-            stream.Dispose();
+            }
 
             if (jsonSeFilter != null)
                 jsonString = jsonSeFilter.Invoke(jsonString);
@@ -297,21 +409,8 @@ namespace WooCommerceNET
             if (jsonDeseFilter != null)
                 jsonString = jsonDeseFilter.Invoke(jsonString);
 
-            Type dT = typeof(T);
-            
-            if (dT.Name.EndsWith("List"))
-                dT = dT.GetTypeInfo().DeclaredProperties.First().PropertyType.GenericTypeArguments[0];
 
-            DataContractJsonSerializerSettings settings = new DataContractJsonSerializerSettings()
-            {
-                DateTimeFormat = new DateTimeFormat(DateTimeFormat),
-                UseSimpleDictionaryFormat = true
-            };
-
-            DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(T), settings);
-            MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
-            T obj = (T)ser.ReadObject(stream);
-            stream.Dispose();
+            T obj = JsonHelper.DeserializeJSon<T>(jsonString, DateTimeFormat);
 
             return obj;
         }
@@ -323,6 +422,8 @@ namespace WooCommerceNET
                 return IsLegacy ? "yyyy-MM-ddTHH:mm:ssZ" : "yyyy-MM-ddTHH:mm:ss";
             }
         }
+
+        public string WcUrl { get { return wc_url; } set { wc_url = value; } }
     }
 
     public enum RequestMethod

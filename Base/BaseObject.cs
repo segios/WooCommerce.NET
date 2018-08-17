@@ -122,18 +122,37 @@ namespace WooCommerceNET.Base
         public List<int> delete { get; set; }
     }
 
+    public class BatchResponseObject<T>
+    {
+        [DataMember(EmitDefaultValue = false)]
+        public List<T> create { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public List<T> update { get; set; }
+
+        [DataMember(EmitDefaultValue = false)]
+        public List<T> delete { get; set; }
+    }
+
     public class WCItem<T>
     {
         public string APIEndpoint { get; protected set; }
         public RestAPI API { get; protected set; }
 
-        public WCItem(RestAPI api)
+        public WCItem(RestAPI api, string endpoint = null)
         {
             API = api;
-            if(typeof(T).BaseType.GetRuntimeProperty("Endpoint") == null)
-                APIEndpoint = typeof(T).GetRuntimeProperty("Endpoint").GetValue(null).ToString();
+            if (string.IsNullOrEmpty(endpoint))
+            {
+                if (typeof(T).BaseType.GetRuntimeProperty("Endpoint") == null)
+                    APIEndpoint = typeof(T).GetRuntimeProperty("Endpoint").GetValue(null).ToString();
+                else
+                    APIEndpoint = typeof(T).BaseType.GetRuntimeProperty("Endpoint").GetValue(null).ToString();
+            }
             else
-                APIEndpoint = typeof(T).BaseType.GetRuntimeProperty("Endpoint").GetValue(null).ToString();
+            {
+                APIEndpoint = endpoint;
+            }
         }
 
         public async Task<T> Get(int id, Dictionary<string, string> parms = null)
@@ -141,9 +160,9 @@ namespace WooCommerceNET.Base
             return API.DeserializeJSon<T>(await API.GetRestful(APIEndpoint + "/" + id.ToString(), parms).ConfigureAwait(false));
         }
 
-        public async Task<T> Get(string email, Dictionary<string, string> parms = null)
+        public async Task<List<T>> GetByEmail(string email, Dictionary<string, string> parms = null)
         {
-            return API.DeserializeJSon<T>(await API.GetRestful(APIEndpoint + "/" + email, parms).ConfigureAwait(false));
+            return API.DeserializeJSon<List<T>>(await API.GetRestful(APIEndpoint + "/?email=" + email, parms).ConfigureAwait(false));
         }
 
         public async Task<List<T>> GetAll(Dictionary<string, string> parms = null)
@@ -156,6 +175,11 @@ namespace WooCommerceNET.Base
             return API.DeserializeJSon<T>(await API.PostRestful(APIEndpoint, item, parms).ConfigureAwait(false));
         }
 
+        public async Task<T> SendFile(byte[] data, string fileName, Dictionary<string, string> parms = null)
+        {
+            return API.DeserializeJSon<T>(await API.SendFile(APIEndpoint, data, fileName, parms).ConfigureAwait(false));
+        }
+
         public async Task<BatchObject<T>> AddRange(BatchObject<T> items, Dictionary<string, string> parms = null)
         {
             return API.DeserializeJSon<BatchObject<T>>(await API.PostRestful(APIEndpoint + "/batch", items, parms).ConfigureAwait(false));
@@ -163,7 +187,7 @@ namespace WooCommerceNET.Base
 
         public async Task<T> Update(int id, T item, Dictionary<string, string> parms = null)
         {
-            return API.DeserializeJSon<T>(await API.PostRestful(APIEndpoint + "/" + id.ToString(), item, parms).ConfigureAwait(false));
+            return API.DeserializeJSon<T>(await API.PutRestful(APIEndpoint + "/" + id.ToString(), item, parms).ConfigureAwait(false));
         }
 
         public async Task<T> UpdateWithNull(int id, object item, Dictionary<string, string> parms = null)
@@ -188,9 +212,14 @@ namespace WooCommerceNET.Base
                 return API.DeserializeJSon<T>(await API.PostRestful(APIEndpoint + "/" + id.ToString(), item, parms).ConfigureAwait(false));
         }
 
-        public async Task<BatchObject<T>> UpdateRange(BatchObject<T> items, Dictionary<string, string> parms = null)
+        //public async Task<T> Update(int id, T item, Dictionary<string, string> parms = null)
+        //{
+        //    return API.DeserializeJSon<T>(await API.PostRestful(APIEndpoint + "/" + id.ToString(), item, parms).ConfigureAwait(false));
+        //}
+
+        public async Task<BatchResponseObject<T>> UpdateRange(BatchObject<T> items, Dictionary<string, string> parms = null)
         {
-            return API.DeserializeJSon<BatchObject<T>>(await API.PostRestful(APIEndpoint + "/batch", items, parms).ConfigureAwait(false));
+            return API.DeserializeJSon<BatchResponseObject<T>>(await API.PostRestful(APIEndpoint + "/batch", items, parms).ConfigureAwait(false));
         }
 
         public async Task<string> Delete(int id, bool force = false, Dictionary<string, string> parms = null)
@@ -246,9 +275,9 @@ namespace WooCommerceNET.Base
             return API.DeserializeJSon<T>(await API.PostRestful(APIParentEndpoint + "/" + parentId.ToString() + "/" + APIEndpoint + "/" + id.ToString(), item, parms).ConfigureAwait(false));
         }
 
-        public async Task<BatchObject<T>> UpdateRange(int parentId, BatchObject<T> items, Dictionary<string, string> parms = null)
+        public async Task<BatchResponseObject<T>> UpdateRange(int parentId, BatchObject<T> items, Dictionary<string, string> parms = null)
         {
-            return API.DeserializeJSon<BatchObject<T>>(await API.PostRestful(APIParentEndpoint + "/" + parentId.ToString() + "/" + APIEndpoint + "/batch", items, parms).ConfigureAwait(false));
+            return API.DeserializeJSon<BatchResponseObject<T>>(await API.PostRestful(APIParentEndpoint + "/" + parentId.ToString() + "/" + APIEndpoint + "/batch", items, parms).ConfigureAwait(false));
         }
 
         public async Task<string> Delete(int id, int parentId, bool force = false, Dictionary<string, string> parms = null)

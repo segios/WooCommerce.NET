@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace WooCommerceNET.WooCommerce.v2
@@ -33,8 +34,23 @@ namespace WooCommerceNET.WooCommerce.v2
         /// <summary>
         /// Refund amount.
         /// </summary>
-        [DataMember(EmitDefaultValue = false)]
         public decimal? amount { get; set; }
+
+        [DataMember(EmitDefaultValue = false, Name = "amount")]
+        private string AmountSerialized {
+            get
+            {
+                return amount?.ToString("F", CultureInfo.InvariantCulture);
+            }
+            set
+            {
+                decimal x;
+                if (decimal.TryParse(value, NumberStyles.Currency, CultureInfo.InvariantCulture, out x))
+                {
+                    amount = x;
+                }
+            }
+        }
 
         /// <summary>
         /// Reason for refund.
@@ -113,7 +129,7 @@ namespace WooCommerceNET.WooCommerce.v2
         /// Tax class of product.
         /// </summary>
         [DataMember(EmitDefaultValue = false)]
-        public int tax_class { get; set; }
+        public string tax_class { get; set; }
 
         /// <summary>
         /// Line subtotal (before discounts).
