@@ -2,17 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageId>WooCommerceNET</PackageId>
-    <Version>0.7.4</Version>
-    <Authors>JamesYang@NZ</Authors>
-    <Company>JamesYang@NZ</Company>
-    <Description>A .NET Wrapper for WooCommerce REST API</Description>
-    <Copyright>Copyright ©  2015 - 2018 James Yang@NZ</Copyright>
-    <PackageLicenseUrl>https://github.com/XiaoFaye/WooCommerce.NET/blob/master/License.md</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/XiaoFaye/WooCommerce.NET</PackageProjectUrl>
+    <PackageId>WooCommerce.xNET</PackageId>
+    <Version>0.7.5</Version>
+    <Authors>SergiiStarykov@UA</Authors>
+    <Company>Sergii@UA</Company>
+    <Description>A .NET Wrapper for WooCommerce REST API, With PPOM API</Description>
+    <Copyright>Copyright © 2018 Sergii Starykov@UA</Copyright>
+    <PackageLicenseUrl>https://github.com/segios//WooCommerce.NET/blob/master/License.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/segios/WooCommerce.NET</PackageProjectUrl>
     <PackageReleaseNotes>WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET applications.
 
-GitHub: https://github.com/XiaoFaye/WooCommerce.NET
+GitHub: https://github.com/segios/
 Changes Doc: https://github.com/XiaoFaye/WooCommerce.NET/blob/master/Changes.md
 
 * v0.7.4 update
@@ -20,6 +20,7 @@ Changes Doc: https://github.com/XiaoFaye/WooCommerce.NET/blob/master/Changes.md
   2. Add Batch Update for WCSubItem.
   3. Allow WCObject to use custom object in V2.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Product>WooCommerce.xNET</Product>
   </PropertyGroup>
 
   <ItemGroup>
