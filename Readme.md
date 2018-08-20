@@ -117,8 +117,7 @@ var ppomFieldsResponse = await productApi.GetProductsPPOM(new ProductRequest()
             PPOMFields = fieldsToDelete
 });
 
-// load fileds from order
-//load from product
+// load fields from order
 var orderApi = new OrderApi(ppomApi);
 var ppomResponse = await orderApi.GetOrderPPOM(new OrderRequest()
 {
