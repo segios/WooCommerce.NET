@@ -88,6 +88,7 @@ var c = await wc.Customer.UpdateRange(cb);
 ```
 PPOM Plugin usage
 -------------------
+```cs
 // register inside current api 
 PPOMRestAPI ppomAPI = new PPOMRestAPI("http://www.yourstore.co.nz/wp-json/wc/v2/", ppomApiSecretKey, null, jsonDeserializeFilter: WooCommerceDeserializeFilter);
 rest.RegisterApi(ppomAPI);
@@ -123,6 +124,7 @@ var ppomResponse = await orderApi.GetOrderPPOM(new OrderRequest()
 {
             OrderId = <order_id>
 });
+```
 
 Usage (Legacy & V1 API)
 -------------------
