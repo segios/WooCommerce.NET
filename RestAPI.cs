@@ -78,7 +78,15 @@ namespace WooCommerceNET
                 wc_secret = secret;
 
             jsonSeFilter = jsonSerializeFilter;
-            jsonDeseFilter = jsonDeserializeFilter;
+            jsonDeseFilter = (s) => {
+                var tmp = DeafultFilters.WooCommerceDeserializeFilter(s);
+                if (jsonDeserializeFilter != null)
+                {
+                    return jsonDeserializeFilter.Invoke(tmp);
+                }
+                return tmp;
+            };
+
             webRequestFilter = requestFilter;
             webResponseFilter = responseFilter;
 
