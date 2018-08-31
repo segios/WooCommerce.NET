@@ -10,7 +10,7 @@ WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET a
 [Visit WooCommerce REST API DOCS](https://woocommerce.github.io/woocommerce-rest-api-docs/)
 
 
-[![NuGet](https://buildstats.info/nuget/WooCommerceNET)](http://www.nuget.org/packages/WooCommerceNET)
+[![NuGet](https://buildstats.info/nuget/WooCommerceX.NET)](http://www.nuget.org/packages/WooCommerceX.NET)
 
 * [How to use JSON.NET in WooCommerce.NET](https://github.com/XiaoFaye/WooCommerce.NET/wiki/How-to-use-JSON.NET-in-WooCommerce.NET)
 * [Handle different types of Meta Value in WC Restful API V2](https://github.com/XiaoFaye/WooCommerce.NET/wiki/Handle-different-types-of-Meta-Value-in-WC-Restful-API-V2)
@@ -18,7 +18,7 @@ WooCommerce.NET is a .NET library for calling WooCommerce REST API in any .NET a
 Added API to PPOM Plugin
 [PPOM Plugin](https://najeebmedia.com/wordpress-plugin/woocommerce-personalized-product-option/)
 
-[Api documentation](https://wpcommandos.com/wp-content/uploads/2018/07/PPOM-API-Guide.pdfP)
+[Api documentation](https://wpcommandos.com/wp-content/uploads/2018/07/PPOM-API-Guide.pdf)
 
 Usage
 -------------------
@@ -88,6 +88,7 @@ var c = await wc.Customer.UpdateRange(cb);
 ```
 PPOM Plugin usage
 -------------------
+```cs
 // register inside current api 
 PPOMRestAPI ppomAPI = new PPOMRestAPI("http://www.yourstore.co.nz/wp-json/wc/v2/", ppomApiSecretKey, null, jsonDeserializeFilter: WooCommerceDeserializeFilter);
 rest.RegisterApi(ppomAPI);
@@ -116,13 +117,13 @@ var ppomFieldsResponse = await productApi.GetProductsPPOM(new ProductRequest()
             PPOMFields = fieldsToDelete
 });
 
-// load fileds from order
-//load from product
+// load fields from order
 var orderApi = new OrderApi(ppomApi);
 var ppomResponse = await orderApi.GetOrderPPOM(new OrderRequest()
 {
             OrderId = <order_id>
 });
+```
 
 Usage (Legacy & V1 API)
 -------------------
