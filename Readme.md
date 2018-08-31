@@ -94,7 +94,7 @@ PPOMRestAPI ppomAPI = new PPOMRestAPI("http://www.yourstore.co.nz/wp-json/wc/v2/
 rest.RegisterApi(ppomAPI);
 
 // usage
-var ppomApi = WcAPI.GetApi<PPOMRestAPI>();
+var ppomApi = rest.GetApi<PPOMRestAPI>();
             
 //save new 
 ppomFieldsResponse = await productApi.SetProductsPPOM(new ProductUpdate()
