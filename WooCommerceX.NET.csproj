@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>WooCommerceX.NET</PackageId>
-    <Version>0.7.5</Version>
+    <Version>0.7.6</Version>
     <Authors>SergiiStarykov</Authors>
     <Company></Company>
     <Description>A .NET Wrapper for WooCommerce REST API, With PPOM API</Description>
@@ -15,12 +15,9 @@
 GitHub: https://github.com/segios/
 Changes Doc: https://github.com/segios/WooCommerce.NET/blob/master/Changes.md
 
-* v0.7.5 update
-
-1. Added PPOM API
-2. Fixes of batch update response deserialization
-3. Fixes of order serialization
-4. Added better exception handling with custom exceptuion and deserialization error info from WebException</PackageReleaseNotes>
+* v0.7.6 update
+  1. Add PreventCacheRequests property to RestAPI (default is true).
+  2. Add default deserialization filter to strip out body/html from response IIS can produce on Create response.</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>WooCommerceX.NET</Product>
     <RootNamespace>WooCommerceNET</RootNamespace>

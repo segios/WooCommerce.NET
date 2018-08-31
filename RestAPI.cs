@@ -22,6 +22,7 @@ namespace WooCommerceNET
         //private bool wc_Proxy = false;
 
         protected bool AuthorizedHeader { get; set; }
+        public bool PreventCacheRequests { get; set; } = true;
 
         protected Func<string, string> jsonSeFilter;
         protected Func<string, string> jsonDeseFilter;
@@ -313,6 +314,17 @@ namespace WooCommerceNET
 
         public async Task<string> GetRestful(string endpoint, Dictionary<string, string> parms = null)
         {
+            if (PreventCacheRequests)
+            {
+                if (parms == null)
+                {
+                    parms = new Dictionary<string, string>();
+                }
+
+                parms.Add("_", DateTime.UtcNow.Ticks.ToString());
+            }
+
+
             return await SendHttpClientRequest(endpoint, RequestMethod.GET, string.Empty, parms).ConfigureAwait(false);
         }
 

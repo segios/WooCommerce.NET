@@ -3,10 +3,17 @@
 
 Version History
 -------------------
+* v0.7.6 update
+  1. Add PreventCacheRequests property to RestAPI (default is true).
+  2. Add default deserialization filter to strip out body/html from response IIS can produce on Create response.
 * v0.7.5 update
-  1. Avoid passing consumer secret when using http.
-  2. Fixing errors when getting APIEndpoint under some cases.
-  3. Allow updating with Null values in V2.
+  1. Added PPOM API
+  2. Fixes of batch update response deserialization
+  3. Fixes of order serialization
+  4. Added better exception handling with custom exceptuion and deserialization error info from WebException
+  5. Avoid passing consumer secret when using http.
+  6. Fixing errors when getting APIEndpoint under some cases.
+  7. Allow updating with Null values in V2.
 * v0.7.4 update
   1. Targeting .NET Standard 2.0.
   2. Add Batch Update for WCSubItem.
