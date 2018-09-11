@@ -147,12 +147,18 @@ namespace WooCommerceNET
                     else
                     {
                         if (parms == null)
+                        {
                             parms = new Dictionary<string, string>();
+                        }
 
                         if (!parms.ContainsKey("consumer_key"))
+                        {
                             parms.Add("consumer_key", wc_key);
+                        }
                         if (!parms.ContainsKey("consumer_secret"))
+                        {
                             parms.Add("consumer_secret", wc_secret);
+                        }
 
                         httpWebRequest = (HttpWebRequest)WebRequest.Create(wc_url + GetOAuthEndPoint(method.ToString(), endpoint, parms));
                     }
@@ -350,17 +356,17 @@ namespace WooCommerceNET
 
         protected string GetOAuthEndPoint(string method, string endpoint, Dictionary<string, string> parms = null)
         {
+            var res = endpoint;
             if (wc_url.StartsWith("https", StringComparison.OrdinalIgnoreCase))
             {
                 if (parms == null)
+                {
                     return endpoint;
+                }
                 else
                 {
-                    string requestParms = string.Empty;
-                    foreach (var parm in parms)
-                        requestParms += parm.Key + "=" + parm.Value + "&";
-
-                    return endpoint + "?" + requestParms.TrimEnd('&');
+                    res = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(endpoint, parms);
+                    return res;
                 }
             }
 
@@ -371,24 +377,28 @@ namespace WooCommerceNET
             dic.Add("oauth_timestamp", Common.GetUnixTime(false));
 
             if (parms != null)
+            {
                 foreach (var p in parms)
+                {
                     dic.Add(p.Key, p.Value);
+                }
+            }
 
             string base_request_uri = method.ToUpper() + "&" + Uri.EscapeDataString(wc_url + endpoint) + "&";
             string stringToSign = string.Empty;
 
             foreach (var parm in dic.OrderBy(x => x.Key))
+            {
                 stringToSign += Uri.EscapeDataString(parm.Key) + "=" + Uri.EscapeDataString(parm.Value) + "&";
+            }
 
             base_request_uri = base_request_uri + Uri.EscapeDataString(stringToSign.TrimEnd('&'));
 
             dic.Add("oauth_signature", Common.GetSHA256(wc_secret, base_request_uri));
 
-            string parmstr = string.Empty;
-            foreach (var parm in dic)
-                parmstr += parm.Key + "=" + Uri.EscapeDataString(parm.Value) + "&";
+            res = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(endpoint, dic);
 
-            return endpoint + "?" + parmstr.TrimEnd('&');
+            return res;
         }
         
         protected async Task<string> GetStreamContent(Stream s, string charset)

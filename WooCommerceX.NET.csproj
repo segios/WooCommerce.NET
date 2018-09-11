@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>WooCommerceX.NET</PackageId>
-    <Version>0.7.6</Version>
+    <Version>0.7.7</Version>
     <Authors>SergiiStarykov</Authors>
     <Company></Company>
     <Description>A .NET Wrapper for WooCommerce REST API, With PPOM API</Description>
@@ -15,15 +15,16 @@
 GitHub: https://github.com/segios/
 Changes Doc: https://github.com/segios/WooCommerce.NET/blob/master/Changes.md
 
-* v0.7.6 update
-  1. Add PreventCacheRequests property to RestAPI (default is true).
-  2. Add default deserialization filter to strip out body/html from response IIS can produce on Create response.</PackageReleaseNotes>
+* v0.7.7 update
+  1. Fix find by email, move email to parameters
+  2. Use Microsoft.AspNetCore.WebUtilities.QueryHelpers to form query string</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>WooCommerceX.NET</Product>
     <RootNamespace>WooCommerceNET</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.1.1" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 

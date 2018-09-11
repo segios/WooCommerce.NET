@@ -162,7 +162,13 @@ namespace WooCommerceNET.Base
 
         public async Task<List<T>> GetByEmail(string email, Dictionary<string, string> parms = null)
         {
-            return API.DeserializeJSon<List<T>>(await API.GetRestful(APIEndpoint + "/?email=" + email, parms).ConfigureAwait(false));
+            if (parms == null) {
+                parms = new Dictionary<string, string>();
+            }
+
+            parms.Add("email", email);
+
+            return API.DeserializeJSon<List<T>>(await API.GetRestful(APIEndpoint, parms).ConfigureAwait(false));
         }
 
         public async Task<List<T>> GetAll(Dictionary<string, string> parms = null)

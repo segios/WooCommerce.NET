@@ -3,6 +3,9 @@
 
 Version History
 -------------------
+* v0.7.7 update
+  1. Fix find by email, move email to parameters
+  2. Use Microsoft.AspNetCore.WebUtilities.QueryHelpers to form query string
 * v0.7.6 update
   1. Add PreventCacheRequests property to RestAPI (default is true).
   2. Add default deserialization filter to strip out body/html from response IIS can produce on Create response.
